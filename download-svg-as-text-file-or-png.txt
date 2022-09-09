@@ -102,7 +102,7 @@ const downloadPNG = document.querySelector('#downloadPNG');
 downloadPNG.addEventListener('click', downloadSVGAsPNG);
 
 
-////////////////////ONCLICK DOWNLOAD SVG USING JS AND DJANGO////////////////////////
+////////////////////ONCLICK CONVERT SVG INTO QR CODE AND AUTO DOWNLOAD USING JS AND DJANGO////////////////////////
 
 JS>>>
 <script>
