@@ -100,3 +100,53 @@ const downloadSVG = document.querySelector('#downloadSVG');
 downloadSVG.addEventListener('click', downloadSVGAsText);
 const downloadPNG = document.querySelector('#downloadPNG');
 downloadPNG.addEventListener('click', downloadSVGAsPNG);
+
+
+////////////////////ONCLICK DOWNLOAD SVG USING JS AND DJANGO////////////////////////
+
+JS>>>
+<script>
+    $(document).ready(function () {
+        $(".qrdownload").click(function () {
+            let qrid = $(this).attr('data-qrid'),
+            csr = $("input[name=csrfmiddlewaretoken]").val();
+            mydata = {
+                qrid: qrid,
+                csrfmiddlewaretoken: csr,                
+            };
+            $.ajax({
+                url: "{% url 'QrPage' %}",
+                method: "POST",
+                data: mydata,
+                success: function (data) {
+                    const svg = data.svg ;                    
+                    const qrid = data.svgid;
+                    downloadSVGAsText(svg,qrid) 
+                },
+            });
+            
+        });
+        function downloadSVGAsText(svg,qrid) {
+            alert("ajay")
+            alert(svg)
+            const base64doc = btoa(unescape(encodeURIComponent(svg)));//svg.outerHTML
+            const a = document.createElement('a');
+            const e = new MouseEvent('click');
+            a.download = qrid+'.svg';
+            a.href = 'data:image/svg+xml;base64,' + base64doc;
+            a.dispatchEvent(e);
+          }
+    });
+</script>
+
+DJANGO VIEWS.PY>>>
+def QrPage(request):
+    qrid=request.POST.get('qrid')
+    url_path = "food_container_api"
+    gen_url = ip_config.local_ip+':'+ip_config.port+'/'+url_path+'/'+qrid
+    factory = qrcode.image.svg.SvgImage
+    img = qrcode.make(gen_url, image_factory=factory, box_size=20 )
+    stream = BytesIO()
+    img.save(stream)
+    svg= stream.getvalue().decode()
+    return JsonResponse({'qrid':qrid,'svg':svg})
